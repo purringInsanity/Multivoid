@@ -266,6 +266,7 @@ set(VOTVCOOP_SOURCES
     src/coop/interactables/garbage_sync.cpp
     src/coop/player/puppet_carry_drive.cpp
     src/coop/world/weather_sync.cpp
+    src/coop/world/build_sync.cpp
     src/coop/world/spill_sync.cpp
     src/coop/world/sus_hole_intent.cpp
     src/coop/world/weather_fog.cpp
@@ -594,6 +595,7 @@ set(VOTVCOOP_SOURCES
     src/harness/autotest/autotest_glowstick.cpp
     src/harness/autotest/glowstick_drill_common.cpp
     src/harness/autotest/glowstick_drill_client.cpp
+    src/harness/autotest/autotest_build.cpp
     src/harness/autotest/autotest_ambient_creature.cpp
     src/harness/autotest/autotest_ambient_field.cpp
     src/harness/autotest/autotest_sus_hole.cpp

@@ -46,6 +46,7 @@
 
 #include "coop/interactables/garbage_bin_sync.h"
 #include "coop/props/container_break.h"
+#include "coop/world/build_sync.h"
 #include "coop/world/spill_sync.h"
 #include "coop/world/sus_hole_intent.h"
 #include "ue_wrap/core/log.h"
@@ -784,6 +785,21 @@ bool HandlePropDriveEvent(net::Session& session,
     case net::ReliableKind::BucketState:
         ::coop::bucket_sync::OnStateWire(msg.payload, msg.payloadLen, msg.senderPeerSlot);   // HOST->ALL: checked there
         break;
+    case net::ReliableKind::BuildState:
+    case net::ReliableKind::BuildIntent: {
+        // BuildState HOST->ALL, BuildIntent CLIENT->HOST; both chunked blobs.
+        const bool intent = msg.kind == net::ReliableKind::BuildIntent;
+        if (intent != (session.role() == net::Role::Host)) {
+            UE_LOGW("event_feed: a built piece's message the wrong way from slot %d -- dropping", msg.senderPeerSlot);
+            break;
+        }
+        if (msg.payloadLen < sizeof(net::BlobChunkPayload)) break;
+        net::BlobChunkPayload c{};
+        std::memcpy(&c, msg.payload, sizeof(c));
+        if (intent) ::coop::build_sync::OnIntentChunk(c, msg.senderPeerSlot);
+        else ::coop::build_sync::OnStateChunk(c, msg.senderPeerSlot);
+        break;
+    }
     default:
         return false;  // not a driven-prop kind -> event_feed tries the next family
     }
