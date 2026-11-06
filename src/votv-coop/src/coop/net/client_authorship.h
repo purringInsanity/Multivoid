@@ -167,6 +167,7 @@ constexpr ClientAuthorship AuthorshipOf(ReliableKind k) {
     case ReliableKind::SpillIntent:
     case ReliableKind::SpillPourIntent:
     case ReliableKind::SusHoleIntent:
+    case ReliableKind::BuildIntent:
     case ReliableKind::CameraToggleIntent:
     case ReliableKind::LaptopTabReport:
     case ReliableKind::PropDriveEnd:
@@ -293,6 +294,7 @@ constexpr ClientAuthorship AuthorshipOf(ReliableKind k) {
     case ReliableKind::CheatResult:
     case ReliableKind::PryState:
     case ReliableKind::DingusFound:
+    case ReliableKind::BuildState:
         return ClientAuthorship::Host;
     }
     return ClientAuthorship::NotAKind;  // a value that names no kind: refused like Host
