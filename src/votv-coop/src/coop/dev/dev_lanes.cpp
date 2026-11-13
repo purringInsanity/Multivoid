@@ -145,6 +145,7 @@
 #include "coop/dev/native_spawn_probe.h"  // [dev] every allowlisted creature a Blueprint graph spawns here
 #include "coop/dev/hand_record_drill.h"  // [dev] a held item's record on the other players' mirrors of that hand, judged by the host
 #include "coop/dev/miner_drill.h"  // [dev] the mining rig drill: use, claim, record and join, judged by the host
+#include "coop/dev/poster_probe.h"  // [dev] a poster put up by the host, one taken down by a client, listed on both
 #include "coop/dev/order_probe.h"  // who writes the order queue, and what the drone delivers, per peer
 #include "coop/dev/bind_wait_selftest.h"  // [dev] the bind wait's rules on stated inputs
 #include "coop/dev/pile_late_load.h"   // [dev] the late-load seam: one save-loaded clump kept aside until its row defers
@@ -512,6 +513,7 @@ void TickDrills(coop::net::Session& session) {
     coop::dev::basedmove_drill::Tick(&session);  // [dev] the based-movement drill (a latched bool read when off)
     coop::dev::kdress_drill::Tick(&session);  // [dev] the Omega outfit drill (a latched enum read when off)
     coop::dev::sound_drill::Tick(&session);  // [dev] the sound relay's drill (a latched read when off)
+    coop::dev::poster_probe::Tick(&session);  // [dev] the posters on both peers (a latched read when off)
     coop::dev::death_seam_census::Tick();  // [dev] every element end the death seam announces (latched read when off)
     coop::dev::damage_probe::Tick();  // [dev] every player damage verb call: whose body, source, caller (latched read when off)
     coop::dev::hand_record_drill::Tick(&session);  // [dev] the held item's record drill (a latched read when off)
