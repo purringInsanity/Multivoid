@@ -1591,8 +1591,7 @@ enum class ReliableKind : uint16_t {
     // each change of it and to a joiner for every Omega (none at a registration: no game route dresses an Omega before it
     // registers), and a pat to show (flags bit 0, the outfit riding along). CLIENT->HOST (273): this client's player patted an Omega; a client's put-on and
     // take-off of an outfit item ride PropActRequest. Not pre-world. KerfurDressPayload (272), KerfurDressPatPayload (273).
-    KerfurDressState = 272,
-    KerfurDressIntent = 273,
+    
     // HOST->ALL: a piece of the host's a player built -- a nail, or a custom wall unfinished, wet or finished -- as its own
     // save record, when it is new or changed, or its key once when it went. A client makes it on its copy, or applies the
     // record to its piece of that key, a nail tied to the actors its keys name there. Not relayed, not pre-world. Late join:
