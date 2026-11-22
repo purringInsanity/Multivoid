@@ -236,11 +236,11 @@ bool NailEnds(const SaveRecord& r, void*& a, void*& b) {
     return (!ValidKey(ka) || a) && (!ValidKey(kb) || b);
 }
 
-bool ApplyHere(void* piece, const SaveRecord& r, ue_wrap::save_record::ClassResolver resolve) {
+bool ApplyHere(void* piece, const SaveRecord& r, ue_wrap::save_record::ClassLoad load) {
     void* a = nullptr;
     void* b = nullptr;
     NailEnds(r, a, b);
-    return B::Apply(piece, r, a, b, resolve);
+    return B::Apply(piece, r, a, b, load);
 }
 
 void* Body(int slot) {
@@ -283,9 +283,9 @@ void HostMake(coop::net::Session& s, const Intent& in) {
         UE_LOGW("build_sync: %zu pieces made for clients -- slot %d's refused", g_clientMade, in.slot);
         return;
     }
-    void* piece = B::Spawn(in.rec);
+    void* piece = B::Spawn(in.rec, ue_wrap::save_record::ClassLoad::LookupOnly);
     if (!piece) return;
-    if (!ApplyHere(piece, in.rec, &ue_wrap::object_index::ClassByName)) {
+    if (!ApplyHere(piece, in.rec, ue_wrap::save_record::ClassLoad::LookupOnly)) {
         E::DestroyActor(piece);
         UE_LOGW("build_sync: slot %d's %s '%ls' would not load", in.slot, KindName(kind), in.key.c_str());
         return;
@@ -433,10 +433,10 @@ bool Make(const std::wstring& key, const SaveRecord& rec, void* piece, bool last
     if (!NailEnds(rec, a, b) && !lastTry) return false;
     const bool made = !piece;
     if (made) {
-        piece = B::Spawn(rec);
+        piece = B::Spawn(rec, ue_wrap::save_record::ClassLoad::Immediate);
         if (!piece) return false;
     }
-    if (!B::Apply(piece, rec, a, b)) {
+    if (!B::Apply(piece, rec, a, b, ue_wrap::save_record::ClassLoad::Immediate)) {
         if (made) B::DestroyQuiet(piece);
         return false;
     }

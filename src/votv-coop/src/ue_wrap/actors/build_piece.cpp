@@ -2,8 +2,8 @@
 
 #include "ue_wrap/actors/build_piece.h"
 
-#include "ue_wrap/core/asset_load.h"
 #include "ue_wrap/core/call.h"
+#include "ue_wrap/core/class_resolve.h"
 #include "ue_wrap/core/object_index.h"
 #include "ue_wrap/core/reflection.h"
 #include "ue_wrap/core/reflection_props.h"
@@ -129,11 +129,11 @@ struct TieRow {
 };
 std::unordered_map<std::wstring, TieRow> g_ties;
 
-void* ClassFor(const std::wstring& className) {
+void* ClassFor(const std::wstring& className, SR::ClassLoad load) {
     if (KindOfClass(className) == Kind::None) return nullptr;
-    if (void* cls = object_index::ClassByName(className.c_str())) return cls;
-    const std::wstring leaf = className.substr(0, className.size() - 2);   // without _C
-    return asset_load::LoadObjectByPath((L"/Game/objects/" + leaf + L"." + className).c_str());
+    return ue_wrap::class_resolve::ResolveClass(className.c_str(),
+                                                ue_wrap::class_resolve::AnyFamily(),
+                                                load).cls;
 }
 
 }  // namespace
@@ -170,8 +170,8 @@ bool Capture(void* piece, SR::SaveRecord& out) {
     return fn && SR::CaptureRecordVia(piece, fn, out);
 }
 
-void* Spawn(const SR::SaveRecord& r) {
-    void* cls = ClassFor(r.className);
+void* Spawn(const SR::SaveRecord& r, SR::ClassLoad load) {
+    void* cls = ClassFor(r.className, load);
     if (!cls) return nullptr;
     const FVector loc{r.xform[4], r.xform[5], r.xform[6]};
     const FRotator rot = engine::QuatToRotator(r.xform[0], r.xform[1], r.xform[2], r.xform[3]);
@@ -185,9 +185,9 @@ void* Spawn(const SR::SaveRecord& r) {
     return actor;
 }
 
-bool Apply(void* piece, const SR::SaveRecord& r, void* endA, void* endB, SR::ClassResolver resolve) {
-    void* load = piece ? R::FindDispatchFunctionCached(R::ClassOf(piece), L"loadData") : nullptr;
-    if (!load || !SR::ApplyRecordVia(piece, load, r, resolve)) return false;
+bool Apply(void* piece, const SR::SaveRecord& r, void* endA, void* endB, SR::ClassLoad load) {
+    void* fnLoad = piece ? R::FindDispatchFunctionCached(R::ClassOf(piece), L"loadData") : nullptr;
+    if (!fnLoad || !SR::ApplyRecordVia(piece, fnLoad, r, load)) return false;
     // A poster's loadData restores its picture (`type`, `filename`) but paints nothing: its begin play's setPoster does,
     // a frame after a spawn, so a record applied to a poster already up repaints it here.
     if (KindOf(piece) == Kind::Poster) return CallNoArgs(piece, L"setPoster") || true;
